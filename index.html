@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fuel Efficiency Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e2a;
+      --surface3: #222636;
+      --border: rgba(255,255,255,0.07);
+      --accent: #f5a623;
+      --accent2: #e8572a;
+      --accent3: #3ecfcf;
+      --text: #eef0f6;
+      --muted: #6b7280;
+      --green: #22d3a0;
+      --red: #f05a5a;
+      --blue: #5a9ef0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background grid texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+    }
+
+    .header-left {}
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(245,166,35,0.3);
+      border-radius: 4px;
+      padding: 4px 10px;
+      margin-bottom: 14px;
+    }
+
+    .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      color: var(--text);
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 8px;
+      font-weight: 300;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      padding-top: 4px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+    }
+
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface3);
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #0d0f14;
+    }
+
+    .btn-accent:hover {
+      background: #fbb93a;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(245,166,35,0.3);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(99,102,241,0.4);
+    }
+
+    /* ── Panel ── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .panel-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .panel-body {
+      padding: 28px;
+    }
+
+    /* ── Input Grid ── */
+    .input-section {
+      margin-bottom: 24px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    input, select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      font-weight: 400;
+      transition: all 0.2s;
+      outline: none;
+      width: 100%;
+      -webkit-appearance: none;
+    }
+
+    input::placeholder { color: var(--muted); }
+
+    input:focus, select:focus {
+      border-color: rgba(245,166,35,0.5);
+      background: var(--surface3);
+      box-shadow: 0 0 0 3px rgba(245,166,35,0.1);
+    }
+
+    select option { background: #1a1e2a; }
+
+    .generate-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0 28px;
+    }
+
+    /* ── Metric Cards ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+
+    .metric-card.c-amber::before { background: linear-gradient(90deg, var(--accent), transparent); }
+    .metric-card.c-green::before { background: linear-gradient(90deg, var(--green), transparent); }
+    .metric-card.c-blue::before { background: linear-gradient(90deg, var(--blue), transparent); }
+    .metric-card.c-red::before { background: linear-gradient(90deg, var(--red), transparent); }
+    .metric-card.c-teal::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+
+    .metric-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .metric-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+
+    .metric-value.c-amber { color: var(--accent); }
+    .metric-value.c-green { color: var(--green); }
+    .metric-value.c-blue { color: var(--blue); }
+    .metric-value.c-red { color: var(--red); }
+    .metric-value.c-teal { color: var(--accent3); }
+
+    .metric-unit {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .metric-icon {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      font-size: 28px;
+      opacity: 0.08;
+    }
+
+    /* ── Analysis Panel ── */
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 640px) {
+      .analysis-grid { grid-template-columns: 1fr; }
+    }
+
+    .analysis-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .analysis-table tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .analysis-table tr:last-child {
+      border-bottom: none;
+    }
+
+    .analysis-table td {
+      padding: 13px 0;
+      font-size: 13px;
+    }
+
+    .analysis-table td:first-child {
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    .analysis-table td:last-child {
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* ── Performance Gauge ── */
+    .gauge-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 12px;
+    }
+
+    .gauge-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .gauge-badge {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      padding: 10px 28px;
+      border-radius: 50px;
+    }
+
+    .gauge-sub {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+      max-width: 200px;
+    }
+
+    /* ── Report header ── */
+    .report-header-block {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .report-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .report-meta {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .vehicle-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: right;
+    }
+
+    .vehicle-info p {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .vehicle-info p strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* ── Odometer strip ── */
+    .odo-strip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .odo-item {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+    }
+
+    .odo-item span:first-child { color: var(--muted); }
+    .odo-item span:last-child { color: var(--text); font-weight: 500; margin-left: 6px; }
+
+    .odo-arrow {
+      color: var(--accent);
+      font-size: 12px;
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 560px;
+      padding: 32px;
+      animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .modal-close {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover { color: var(--text); background: var(--surface3); }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 480px) {
+      .modal-grid { grid-template-columns: 1fr; }
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* ── Hidden ── */
+    #report-section { display: none; }
+
+    /* ── Animation ── */
+    .fade-in {
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stagger-1 { animation-delay: 0.05s; opacity: 0; }
+    .stagger-2 { animation-delay: 0.10s; opacity: 0; }
+    .stagger-3 { animation-delay: 0.15s; opacity: 0; }
+    .stagger-4 { animation-delay: 0.20s; opacity: 0; }
+
+    /* ════════════════════════════════
+       PRINT STYLES — Single A4 page
+    ════════════════════════════════ */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 10mm 12mm;
+      }
+
+      html, body {
+        background: #ffffff !important;
+        color: #111 !important;
+        font-size: 10px !important;
+      }
+
+      body::before { display: none; }
+
+      /* Hide ALL screen content */
+      body > * { display: none !important; }
+
+      /* Show only the print report container */
+      body > .container { display: block !important; }
+      .container > * { display: none !important; }
+      .container > #report-section { display: block !important; }
+
+      #report-section {
+        display: block !important;
+      }
+
+      .print-report {
+        width: 100%;
+        font-family: 'DM Sans', sans-serif;
+      }
+
+      /* Print header */
+      .pr-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f5a623;
+        margin-bottom: 14px;
+      }
+
+      .pr-title {
+        font-family: 'Syne', sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+        color: #0d0f14;
+        letter-spacing: -0.5px;
+      }
+
+      .pr-accent { color: #f5a623; }
+
+      .pr-meta {
+        font-family: 'DM Mono', monospace;
+        font-size: 9px;
+        color: #555;
+        text-align: right;
+        line-height: 1.6;
+      }
+
+      /* Vehicle strip */
+      .pr-vehicle {
+        display: flex;
+        gap: 8px;
+        background: #f8f8f8;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 12px;
+        font-family: 'DM Mono', monospace;
+        font-size: 9px;
+        color: #333;
+        flex-wrap: wrap;
+      }
+
+      .pr-vehicle span { margin-right: 14px; }
+      .pr-vehicle strong { color: #000; }
+
+      /* Odometer row */
+      .pr-odo {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        background: #fff7e6;
+        border: 1px solid #f5a623;
+        border-radius: 8px;
+        padding: 8px 14px;
+        margin-bottom: 14px;
+        font-family: 'DM Mono', monospace;
+        font-size: 9px;
+        color: #333;
+        flex-wrap: wrap;
+      }
+
+      /* Metric cards */
+      .pr-metrics {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .pr-card {
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        padding: 10px 10px 8px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .pr-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+      }
+
+      .pr-card.ca::before { background: #f5a623; }
+      .pr-card.cg::before { background: #22d3a0; }
+      .pr-card.cb::before { background: #5a9ef0; }
+      .pr-card.cr::before { background: #f05a5a; }
+
+      .pr-card-label {
+        font-family: 'DM Mono', monospace;
+        font-size: 7.5px;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: #888;
+        margin-bottom: 4px;
+      }
+
+      .pr-card-value {
+        font-family: 'Syne', sans-serif;
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .pr-card.ca .pr-card-value { color: #d48c00; }
+      .pr-card.cg .pr-card-value { color: #0fa870; }
+      .pr-card.cb .pr-card-value { color: #2b6fb0; }
+      .pr-card.cr .pr-card-value { color: #c0392b; }
+
+      .pr-card-unit {
+        font-family: 'DM Mono', monospace;
+        font-size: 8px;
+        color: #aaa;
+        margin-top: 3px;
+      }
+
+      /* Analysis section */
+      .pr-analysis {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .pr-box {
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        padding: 12px 14px;
+      }
+
+      .pr-box-title {
+        font-family: 'Syne', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 10px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .pr-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 9px;
+      }
+
+      .pr-row:last-child { border-bottom: none; }
+      .pr-row span:first-child { color: #666; font-family: 'DM Mono', monospace; }
+      .pr-row span:last-child { font-family: 'DM Mono', monospace; font-weight: 600; color: #111; }
+
+      /* Performance badge */
+      .pr-perf-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        gap: 8px;
+      }
+
+      .pr-perf-label {
+        font-family: 'DM Mono', monospace;
+        font-size: 8px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #888;
+      }
+
+      .pr-perf-badge {
+        font-family: 'Syne', sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+        padding: 8px 24px;
+        border-radius: 50px;
+        text-align: center;
+      }
+
+      .pr-perf-sub {
+        font-size: 8px;
+        color: #888;
+        text-align: center;
+        line-height: 1.4;
+      }
+
+      /* Footer */
+      .pr-footer {
+        border-top: 1px solid #e5e5e5;
+        padding-top: 8px;
+        display: flex;
+        justify-content: space-between;
+        font-family: 'DM Mono', monospace;
+        font-size: 8px;
+        color: #bbb;
+      }
+
+      /* Force single page */
+      * { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ── Screen Header ── -->
+  <header>
+    <div class="header-left">
+      <div class="badge">Fuel Monitor Pro</div>
+      <h1>Fuel Efficiency<br><span>Calculator</span></h1>
+      <p class="subtitle">Professional vehicle mileage & cost analysis</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="openModal()">
+        <i class="fa-solid fa-car"></i> Vehicle Details
+      </button>
+      <button class="btn btn-accent" onclick="handlePrint()">
+        <i class="fa-solid fa-print"></i> Print Report
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Input Section ── -->
+  <div class="input-section">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-icon" style="background:rgba(245,166,35,0.12);color:var(--accent)">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </div>
+        <span class="panel-title">Enter Fuel Data</span>
+      </div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="field">
+            <label>Fuel Price (LKR/L)</label>
+            <input id="fuelPrice" type="number" value="410" placeholder="410">
+          </div>
+          <div class="field">
+            <label>Previous Odometer (KM)</label>
+            <input id="prevOdo" type="number" placeholder="53154">
+          </div>
+          <div class="field">
+            <label>Current Odometer (KM)</label>
+            <input id="currOdo" type="number" placeholder="53290">
+          </div>
+          <div class="field">
+            <label>Amount Paid (LKR)</label>
+            <input id="amountPaid" type="number" placeholder="1430">
+          </div>
+          <div class="field">
+            <label>Fuel Added (Litres)</label>
+            <input id="fuelAdded" type="number" step="0.01" placeholder="3.49">
+          </div>
+          <div class="field">
+            <label style="visibility:hidden;">Generate</label>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px 20px;font-size:14px;" onclick="generateReport()">
+              <i class="fa-solid fa-chart-line"></i> Generate Report
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Screen Report ── -->
+  <div id="screen-report" style="display:none;">
+
+    <!-- Odometer strip -->
+    <div class="odo-strip fade-in">
+      <div class="odo-item"><span>From</span><span id="s-prevOdo">—</span></div>
+      <div class="odo-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="odo-item"><span>To</span><span id="s-currOdo">—</span></div>
+      <div class="odo-arrow"><i class="fa-solid fa-equals"></i></div>
+      <div class="odo-item"><span>Distance</span><span id="s-dist" style="color:var(--accent)">—</span></div>
+    </div>
+
+    <!-- Metric cards -->
+    <div class="metrics-grid">
+      <div class="metric-card c-amber fade-in stagger-1">
+        <div class="metric-label">Mileage</div>
+        <div class="metric-value c-amber" id="s-mileage">—</div>
+        <div class="metric-unit">KM / LITRE</div>
+        <i class="fa-solid fa-gauge-high metric-icon"></i>
+      </div>
+      <div class="metric-card c-green fade-in stagger-2">
+        <div class="metric-label">Cost per KM</div>
+        <div class="metric-value c-green" id="s-costPerKm">—</div>
+        <div class="metric-unit">LKR / KM</div>
+        <i class="fa-solid fa-money-bill-wave metric-icon"></i>
+      </div>
+      <div class="metric-card c-blue fade-in stagger-3">
+        <div class="metric-label">Fuel Used</div>
+        <div class="metric-value c-blue" id="s-fuelUsed">—</div>
+        <div class="metric-unit">LITRES</div>
+        <i class="fa-solid fa-gas-pump metric-icon"></i>
+      </div>
+      <div class="metric-card c-red fade-in stagger-4">
+        <div class="metric-label">Total Spent</div>
+        <div class="metric-value c-red" id="s-spent">—</div>
+        <div class="metric-unit">LKR</div>
+        <i class="fa-solid fa-receipt metric-icon"></i>
+      </div>
+    </div>
+
+    <!-- Analysis + Performance -->
+    <div class="analysis-grid">
+      <div class="panel fade-in">
+        <div class="panel-header">
+          <div class="panel-icon" style="background:rgba(62,207,207,0.12);color:var(--accent3)">
+            <i class="fa-solid fa-table-list"></i>
+          </div>
+          <span class="panel-title">Detailed Analysis</span>
+        </div>
+        <div class="panel-body" style="padding-top:8px;">
+          <table class="analysis-table">
+            <tbody id="s-analysis"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel fade-in">
+        <div class="panel-header">
+          <div class="panel-icon" style="background:rgba(245,166,35,0.12);color:var(--accent)">
+            <i class="fa-solid fa-star"></i>
+          </div>
+          <span class="panel-title">Performance Rating</span>
+        </div>
+        <div class="panel-body">
+          <div class="gauge-wrap">
+            <div class="gauge-label">Overall Rating</div>
+            <div class="gauge-badge" id="s-perfBadge">—</div>
+            <div class="gauge-sub" id="s-perfSub">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── PRINT REPORT (hidden on screen, shown on print) ── -->
+  <div id="report-section">
+    <div class="print-report" id="print-report"></div>
+  </div>
+
+</div>
+
+<!-- ── Modal ── -->
+<div class="modal-overlay" id="vehicleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Vehicle Details</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-grid">
+      <div class="field">
+        <label>Owner Name</label>
+        <input id="ownerName" type="text" placeholder="Your Name">
+      </div>
+      <div class="field">
+        <label>Vehicle Type</label>
+        <select id="vehicleType">
+          <option>Motorcycle</option>
+          <option>Car</option>
+          <option>Van</option>
+          <option>SUV</option>
+          <option>Bus</option>
+          <option>Truck</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Vehicle Model</label>
+        <input id="vehicleModel" type="text" placeholder="Honda CB125F">
+      </div>
+      <div class="field">
+        <label>Fuel Type</label>
+        <select id="fuelType">
+          <option>Petrol 92</option>
+          <option>Petrol 95</option>
+          <option>Diesel</option>
+          <option>Super Diesel</option>
+          <option>Electric</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-accent" onclick="closeModal()">Save Details</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let reportData = null;
+
+  function openModal() {
+    document.getElementById('vehicleModal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('vehicleModal').classList.remove('active');
+  }
+
+  function getPerformance(mileage) {
+    if (mileage < 20) return { label: 'Poor', sub: 'High fuel consumption. Consider a service check.', color: '#f05a5a', bg: 'rgba(240,90,90,0.12)', printBg: '#ffe5e5', printColor: '#c0392b' };
+    if (mileage < 30) return { label: 'Below Avg', sub: 'Room for improvement. Check tyre pressure & engine health.', color: '#f5a623', bg: 'rgba(245,166,35,0.12)', printBg: '#fff3cd', printColor: '#856404' };
+    if (mileage < 40) return { label: 'Good', sub: 'Decent efficiency. Steady driving habits are working.', color: '#22d3a0', bg: 'rgba(34,211,160,0.12)', printBg: '#d4edda', printColor: '#155724' };
+    if (mileage < 55) return { label: 'Very Good', sub: 'Great mileage! Keep up the smooth riding habits.', color: '#5a9ef0', bg: 'rgba(90,158,240,0.12)', printBg: '#cce5ff', printColor: '#004085' };
+    return { label: 'Excellent', sub: 'Outstanding efficiency. Peak performance achieved!', color: '#a855f7', bg: 'rgba(168,85,247,0.12)', printBg: '#e8d5ff', printColor: '#6b21a8' };
+  }
+
+  function generateReport() {
+    const fuelPrice = parseFloat(document.getElementById('fuelPrice').value) || 0;
+    const prevOdo   = parseFloat(document.getElementById('prevOdo').value) || 0;
+    const currOdo   = parseFloat(document.getElementById('currOdo').value) || 0;
+    const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+    const fuelAdded  = parseFloat(document.getElementById('fuelAdded').value) || 0;
+
+    if (currOdo <= prevOdo || fuelAdded <= 0) {
+      alert('Please enter valid odometer readings and fuel added.');
+      return;
+    }
+
+    const distance    = currOdo - prevOdo;
+    const mileage     = distance / fuelAdded;
+    const fuelPer100  = (fuelAdded / distance) * 100;
+    const costPerKm   = amountPaid / distance;
+    const dist1000    = (1000 / fuelPrice) * mileage;
+    const range10L    = mileage * 10;
+    const perf        = getPerformance(mileage);
+
+    const owner        = document.getElementById('ownerName').value || 'N/A';
+    const vehicleType  = document.getElementById('vehicleType').value;
+    const vehicleModel = document.getElementById('vehicleModel').value || 'N/A';
+    const fuelType     = document.getElementById('fuelType').value;
+
+    reportData = { fuelPrice, prevOdo, currOdo, amountPaid, fuelAdded, distance, mileage, fuelPer100, costPerKm, dist1000, range10L, perf, owner, vehicleType, vehicleModel, fuelType };
+
+    // ── Update screen report ──
+    document.getElementById('s-prevOdo').textContent = prevOdo.toLocaleString() + ' KM';
+    document.getElementById('s-currOdo').textContent = currOdo.toLocaleString() + ' KM';
+    document.getElementById('s-dist').textContent    = distance.toFixed(0) + ' KM';
+    document.getElementById('s-mileage').textContent  = mileage.toFixed(2);
+    document.getElementById('s-costPerKm').textContent = costPerKm.toFixed(2);
+    document.getElementById('s-fuelUsed').textContent  = fuelAdded.toFixed(2);
+    document.getElementById('s-spent').textContent     = amountPaid.toLocaleString();
+
+    document.getElementById('s-analysis').innerHTML = `
+      <tr><td>Consumption / 100 KM</td><td>${fuelPer100.toFixed(2)} L</td></tr>
+      <tr><td>Range on 10 Litres</td><td>${range10L.toFixed(1)} KM</td></tr>
+      <tr><td>Distance for LKR 1,000</td><td>${dist1000.toFixed(1)} KM</td></tr>
+      <tr><td>Fuel Price</td><td>LKR ${fuelPrice.toFixed(2)}/L</td></tr>
+      <tr><td>Total Fuel Cost</td><td>LKR ${amountPaid.toLocaleString()}</td></tr>
+    `;
+
+    const badge = document.getElementById('s-perfBadge');
+    badge.textContent = perf.label;
+    badge.style.background = perf.bg;
+    badge.style.color = perf.color;
+    document.getElementById('s-perfSub').textContent = perf.sub;
+
+    const screenReport = document.getElementById('screen-report');
+    screenReport.style.display = 'block';
+    screenReport.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Build print report
+    buildPrintReport(reportData);
+  }
+
+  function buildPrintReport(d) {
+    const date = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+    const time = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+
+    document.getElementById('print-report').innerHTML = `
+      <div class="pr-head">
+        <div>
+          <div class="pr-title">⛽ Fuel Efficiency <span class="pr-accent">Report</span></div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:#888;margin-top:4px;">Professional Vehicle Mileage & Cost Analysis</div>
+        </div>
+        <div class="pr-meta">
+          <div>${date} &nbsp;·&nbsp; ${time}</div>
+          <div style="margin-top:2px;">Owner: <strong style="color:#111;">${d.owner}</strong></div>
+          <div>${d.vehicleType} &nbsp;·&nbsp; ${d.vehicleModel}</div>
+          <div>${d.fuelType}</div>
+        </div>
+      </div>
+
+      <div class="pr-odo">
+        <span><strong>Previous ODO:</strong> ${d.prevOdo.toLocaleString()} KM</span>
+        <span style="color:#f5a623;">→</span>
+        <span><strong>Current ODO:</strong> ${d.currOdo.toLocaleString()} KM</span>
+        <span style="color:#f5a623;">=</span>
+        <span><strong style="color:#d48c00;">Distance Covered: ${d.distance.toFixed(0)} KM</strong></span>
+      </div>
+
+      <div class="pr-metrics">
+        <div class="pr-card ca">
+          <div class="pr-card-label">Mileage</div>
+          <div class="pr-card-value">${d.mileage.toFixed(2)}</div>
+          <div class="pr-card-unit">KM / LITRE</div>
+        </div>
+        <div class="pr-card cg">
+          <div class="pr-card-label">Cost per KM</div>
+          <div class="pr-card-value">${d.costPerKm.toFixed(2)}</div>
+          <div class="pr-card-unit">LKR / KM</div>
+        </div>
+        <div class="pr-card cb">
+          <div class="pr-card-label">Fuel Used</div>
+          <div class="pr-card-value">${d.fuelAdded.toFixed(2)}</div>
+          <div class="pr-card-unit">LITRES</div>
+        </div>
+        <div class="pr-card cr">
+          <div class="pr-card-label">Total Spent</div>
+          <div class="pr-card-value">${d.amountPaid.toLocaleString()}</div>
+          <div class="pr-card-unit">LKR</div>
+        </div>
+      </div>
+
+      <div class="pr-analysis">
+        <div class="pr-box">
+          <div class="pr-box-title">Detailed Analysis</div>
+          <div class="pr-row"><span>Consumption per 100 KM</span><span>${d.fuelPer100.toFixed(2)} L</span></div>
+          <div class="pr-row"><span>Range on 10 Litres</span><span>${d.range10L.toFixed(1)} KM</span></div>
+          <div class="pr-row"><span>Distance for LKR 1,000</span><span>${d.dist1000.toFixed(1)} KM</span></div>
+          <div class="pr-row"><span>Fuel Price Used</span><span>LKR ${d.fuelPrice.toFixed(2)} / L</span></div>
+          <div class="pr-row"><span>Total Fuel Cost</span><span>LKR ${d.amountPaid.toLocaleString()}</span></div>
+        </div>
+        <div class="pr-box">
+          <div class="pr-box-title">Performance Rating</div>
+          <div class="pr-perf-wrap">
+            <div class="pr-perf-label">Overall Efficiency</div>
+            <div class="pr-perf-badge" style="background:${d.perf.printBg};color:${d.perf.printColor};">${d.perf.label}</div>
+            <div class="pr-perf-sub">${d.perf.sub}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pr-footer">
+        <span>Generated by Fuel Efficiency Calculator</span>
+        <span>${d.vehicleModel} &nbsp;·&nbsp; ${d.fuelType}</span>
+        <span>${date}</span>
+      </div>
+    `;
+  }
+
+  function handlePrint() {
+    if (!reportData) {
+      alert('Please generate a report first before printing.');
+      return;
+    }
+    window.print();
+  }
+
+  window.addEventListener('load', openModal);
+</script>
+</body>
+</html>
