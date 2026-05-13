@@ -66,6 +66,7 @@
     .tab.active { background:var(--surface); color:var(--text); box-shadow:0 1px 4px rgba(0,0,0,0.3); }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
+    @media(max-width:480px){ .tab-label { display:none; } .tab { padding:9px 8px; } }
 
     /* Odo strip */
     .odo-strip { display:flex; align-items:center; gap:12px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px 20px; margin-bottom:20px; flex-wrap:wrap; }
@@ -267,14 +268,14 @@
   <div id="main-tabs" style="display:none;">
     <div class="tabs">
       <button class="tab active" onclick="switchTab('report')" id="tab-report">
-        <i class="fa-solid fa-gauge-high"></i> Current Report
+        <i class="fa-solid fa-gauge-high"></i> <span class="tab-label">Current Report</span>
       </button>
       <button class="tab" onclick="switchTab('history')" id="tab-history">
-        <i class="fa-solid fa-clock-rotate-left"></i> Fill History
+        <i class="fa-solid fa-clock-rotate-left"></i> <span class="tab-label">Fill History</span>
         <span id="historyCount" style="background:var(--accent);color:#000;border-radius:10px;padding:1px 7px;font-size:10px;margin-left:2px;">0</span>
       </button>
       <button class="tab" onclick="switchTab('trends')" id="tab-trends">
-        <i class="fa-solid fa-chart-line"></i> Trends
+        <i class="fa-solid fa-chart-line"></i> <span class="tab-label">Trends</span>
       </button>
     </div>
 
@@ -398,8 +399,8 @@
     </div>
   </div>
 
-  <!-- Print report (hidden on screen) -->
-  <div id="report-section">
+  <!-- Print report (hidden on screen, shown only on print) -->
+  <div id="report-section" style="display:none;">
     <div class="print-report" id="print-report"></div>
   </div>
 </div>
@@ -423,6 +424,8 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-danger" onclick="confirmReset()" style="margin-right:8px;"><i class="fa-solid fa-rotate-left"></i> Reset All Data</button>
       <button class="btn btn-accent" onclick="saveVehicle()">Save Details</button>
     </div>
   </div>
@@ -436,6 +439,19 @@
     <div class="confirm-actions">
       <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
       <button class="btn btn-danger" onclick="clearHistory()"><i class="fa-solid fa-trash"></i> Yes, Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm full reset -->
+<div class="confirm-overlay" id="confirmResetOverlay">
+  <div class="confirm-box">
+    <div style="font-size:32px;margin-bottom:12px;">⚠️</div>
+    <h3>Reset Everything?</h3>
+    <p>This will permanently erase all fill-up history <strong style="color:var(--text)">and</strong> vehicle details. The page will reload fresh. This cannot be undone.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" onclick="closeResetConfirm()">Cancel</button>
+      <button class="btn btn-danger" onclick="resetAllData()"><i class="fa-solid fa-rotate-left"></i> Yes, Reset All</button>
     </div>
   </div>
 </div>
@@ -455,8 +471,10 @@ window.addEventListener('load', () => {
   if (history.length > 0) {
     document.getElementById('main-tabs').style.display = 'block';
     document.getElementById('historyCount').textContent = history.length;
+    restoreLastReport();
   }
-  openModal();
+  // Only open modal if vehicle details have never been saved
+  if (!localStorage.getItem(VEHICLE_KEY)) openModal();
 });
 
 // ── Vehicle ───────────────────────────────────────────────────
@@ -472,6 +490,8 @@ function saveVehicle() {
   };
   localStorage.setItem(VEHICLE_KEY, JSON.stringify(d));
   closeModal();
+  // Rebuild print report immediately so updated details are reflected
+  if (reportData) buildPrintReport(reportData);
 }
 
 function loadVehicleDetails() {
@@ -487,6 +507,47 @@ function autoFillLastOdo() {
   const last = history[history.length - 1];
   document.getElementById('prevOdo').value = last.currOdo;
   document.getElementById('autoFillNote').style.display = 'flex';
+}
+
+// Restore last entry to the report tab on revisit
+function restoreLastReport() {
+  const e = history[history.length - 1];
+  const perf = getPerformance(e.mileage);
+
+  document.getElementById('s-prevOdo').textContent   = e.prevOdo.toLocaleString() + ' KM';
+  document.getElementById('s-currOdo').textContent   = e.currOdo.toLocaleString() + ' KM';
+  document.getElementById('s-dist').textContent      = e.distance.toFixed(0) + ' KM';
+  document.getElementById('s-mileage').textContent   = e.mileage.toFixed(2);
+  document.getElementById('s-costPerKm').textContent = e.costPerKm.toFixed(2);
+  document.getElementById('s-fuelUsed').textContent  = e.fuelAdded.toFixed(2);
+  document.getElementById('s-spent').textContent     = e.amountPaid.toLocaleString();
+  document.getElementById('s-mileageDelta').innerHTML = '';
+  document.getElementById('s-costDelta').innerHTML    = '';
+  document.getElementById('s-priceTrend').innerHTML  = '';
+
+  document.getElementById('s-analysis').innerHTML = `
+    <tr><td>Consumption / 100 KM</td><td>${e.fuelPer100.toFixed(2)} L</td></tr>
+    <tr><td>Range on 10 Litres</td><td>${e.range10L.toFixed(1)} KM</td></tr>
+    <tr><td>Distance for LKR 1,000</td><td>${e.dist1000.toFixed(1)} KM</td></tr>
+    <tr><td>Fuel Price</td><td>LKR ${e.fuelPrice.toFixed(2)}/L</td></tr>
+    <tr><td>Total Fuel Cost</td><td>LKR ${e.amountPaid.toLocaleString()}</td></tr>
+  `;
+
+  const badge = document.getElementById('s-perfBadge');
+  badge.textContent      = perf.label;
+  badge.style.background = perf.bg;
+  badge.style.color      = perf.color;
+  document.getElementById('s-perfSub').textContent = perf.sub;
+
+  // Set reportData so Print button works on revisit
+  const v = JSON.parse(localStorage.getItem(VEHICLE_KEY) || '{}');
+  reportData = { ...e, perf,
+    owner:        v.ownerName    || 'N/A',
+    vehicleType:  v.vehicleType  || 'N/A',
+    vehicleModel: v.vehicleModel || 'N/A',
+    fuelType:     v.fuelType     || 'N/A'
+  };
+  buildPrintReport(reportData);
 }
 
 // ── Performance ───────────────────────────────────────────────
@@ -686,6 +747,14 @@ function clearHistory() {
   document.getElementById('historyCount').textContent = 0;
 }
 
+function confirmReset()      { closeModal(); document.getElementById('confirmResetOverlay').classList.add('active'); }
+function closeResetConfirm() { document.getElementById('confirmResetOverlay').classList.remove('active'); }
+function resetAllData() {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(VEHICLE_KEY);
+  location.reload();
+}
+
 // ── Trends / Charts ───────────────────────────────────────────
 function renderTrends() {
   if (history.length < 2) {
@@ -803,6 +872,12 @@ function drawChart(id, labels, data, yLabel, color) {
 
 // ── Print ─────────────────────────────────────────────────────
 function buildPrintReport(d) {
+  // Always read current vehicle details from form (in case they were updated after first report)
+  const owner        = document.getElementById('ownerName').value    || d.owner        || 'N/A';
+  const vehicleType  = document.getElementById('vehicleType').value  || d.vehicleType  || 'N/A';
+  const vehicleModel = document.getElementById('vehicleModel').value || d.vehicleModel || 'N/A';
+  const fuelType     = document.getElementById('fuelType').value     || d.fuelType     || 'N/A';
+
   const date = new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'long',year:'numeric'});
   const time = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
   document.getElementById('print-report').innerHTML = `
@@ -813,9 +888,9 @@ function buildPrintReport(d) {
       </div>
       <div class="pr-meta">
         <div>${date} · ${time}</div>
-        <div style="margin-top:2px;">Owner: <strong style="color:#111">${d.owner}</strong></div>
-        <div>${d.vehicleType} · ${d.vehicleModel}</div>
-        <div>${d.fuelType}</div>
+        <div style="margin-top:2px;">Owner: <strong style="color:#111">${owner}</strong></div>
+        <div>${vehicleType} · ${vehicleModel}</div>
+        <div>${fuelType}</div>
       </div>
     </div>
     <div class="pr-odo">
@@ -852,13 +927,14 @@ function buildPrintReport(d) {
     </div>
     <div class="pr-footer">
       <span>Generated by Fuel Efficiency Calculator</span>
-      <span>${d.vehicleModel} · ${d.fuelType}</span>
+      <span>${vehicleModel} · ${fuelType}</span>
       <span>${date}</span>
     </div>`;
 }
 
 function handlePrint() {
   if (!reportData) { alert('Please generate a report first before printing.'); return; }
+  buildPrintReport(reportData); // always rebuild with current form values
   window.print();
 }
 </script>
