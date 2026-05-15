@@ -156,7 +156,12 @@
     .modal-close:hover { color:var(--text); background:var(--surface3); }
     .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
     @media(max-width:480px){ .modal-grid{grid-template-columns:1fr;} }
-    .modal-footer { display:flex; justify-content:flex-end; gap:10px; }
+    .modal-footer { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    @media(max-width:480px){
+      .modal-footer { gap:8px; }
+      .modal-footer .btn { flex:1; justify-content:center; font-size:12px; padding:10px 8px; }
+      .btn-label { display:none; }
+    }
 
     /* Confirm */
     .confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:200; }
@@ -421,12 +426,14 @@
       <div class="field"><label>Fuel Type</label>
         <select id="fuelType"><option>Petrol 92</option><option>Petrol 95</option><option>Diesel</option><option>Super Diesel</option><option>Electric</option></select>
       </div>
+      <div class="field"><label>Fill-up Date</label><input id="fillDate" type="date"></div>
+      <div class="field"><label>Gas Station</label><input id="gasStation" type="text" placeholder="e.g. Lanka IOC, Colombo"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmReset()"><i class="fa-solid fa-rotate-left"></i> <span class="btn-label">Reset All</span></button>
       <div style="flex:1"></div>
-      <button class="btn btn-danger" onclick="confirmReset()" style="margin-right:8px;"><i class="fa-solid fa-rotate-left"></i> Reset All Data</button>
-      <button class="btn btn-accent" onclick="saveVehicle()">Save Details</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-accent" onclick="saveVehicle()"><i class="fa-solid fa-check"></i> <span class="btn-label">Save</span></button>
     </div>
   </div>
 </div>
@@ -439,6 +446,20 @@
     <div class="confirm-actions">
       <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
       <button class="btn btn-danger" onclick="clearHistory()"><i class="fa-solid fa-trash"></i> Yes, Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm delete single entry -->
+<div class="confirm-overlay" id="confirmDeleteOverlay">
+  <div class="confirm-box">
+    <div style="font-size:28px;margin-bottom:12px;">🗑️</div>
+    <h3>Delete This Record?</h3>
+    <div id="deleteEntryInfo" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0;text-align:left;font-family:'DM Mono',monospace;font-size:11px;line-height:1.9;"></div>
+    <p>This entry will be permanently removed from your history. Trend charts and stats will be recalculated.</p>
+    <div class="confirm-actions" style="margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeDeleteConfirm()">Keep It</button>
+      <button class="btn btn-danger" onclick="doDeleteEntry()"><i class="fa-solid fa-trash"></i> Delete</button>
     </div>
   </div>
 </div>
@@ -486,11 +507,12 @@ function saveVehicle() {
     ownerName:    document.getElementById('ownerName').value,
     vehicleType:  document.getElementById('vehicleType').value,
     vehicleModel: document.getElementById('vehicleModel').value,
-    fuelType:     document.getElementById('fuelType').value
+    fuelType:     document.getElementById('fuelType').value,
+    fillDate:     document.getElementById('fillDate').value,
+    gasStation:   document.getElementById('gasStation').value
   };
   localStorage.setItem(VEHICLE_KEY, JSON.stringify(d));
   closeModal();
-  // Rebuild print report immediately so updated details are reflected
   if (reportData) buildPrintReport(reportData);
 }
 
@@ -500,6 +522,8 @@ function loadVehicleDetails() {
   if (d.vehicleType)  document.getElementById('vehicleType').value  = d.vehicleType;
   if (d.vehicleModel) document.getElementById('vehicleModel').value = d.vehicleModel;
   if (d.fuelType)     document.getElementById('fuelType').value     = d.fuelType;
+  if (d.fillDate)     document.getElementById('fillDate').value     = d.fillDate;
+  if (d.gasStation)   document.getElementById('gasStation').value   = d.gasStation;
 }
 
 function autoFillLastOdo() {
@@ -597,7 +621,12 @@ function generateReport() {
   const fuelType     = document.getElementById('fuelType').value;
 
   // Save entry
-  const entry = { date, fuelPrice, prevOdo, currOdo, amountPaid, fuelAdded, distance, mileage, fuelPer100, costPerKm, dist1000, range10L };
+  const fillDate   = document.getElementById('fillDate').value;
+  const gasStation = document.getElementById('gasStation').value;
+  const entryDate  = fillDate
+    ? new Date(fillDate).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'})
+    : date;
+  const entry = { date: entryDate, fuelPrice, prevOdo, currOdo, amountPaid, fuelAdded, distance, mileage, fuelPer100, costPerKm, dist1000, range10L, gasStation };
   history.push(entry);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
 
@@ -708,6 +737,7 @@ function renderHistory() {
     return `<tr>
       <td style="color:var(--muted)">#${i+1}</td>
       <td>${e.date}</td>
+      <td>${e.gasStation ? `<span style="color:var(--accent3);font-size:11px">${e.gasStation}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
       <td class="num">${e.prevOdo.toLocaleString()} → ${e.currOdo.toLocaleString()}</td>
       <td class="num">${e.distance.toFixed(0)} KM</td>
       <td class="num">${e.fuelAdded.toFixed(2)} L</td>
@@ -723,16 +753,41 @@ function renderHistory() {
   document.getElementById('historyTableWrap').innerHTML = `
     <table class="history-table">
       <thead><tr>
-        <th>#</th><th>Date</th><th>Odometer</th><th>Distance</th>
+        <th>#</th><th>Date</th><th>Station</th><th>Odometer</th><th>Distance</th>
         <th>Fuel</th><th>Price/L</th><th>KM/L</th><th>Cost/KM</th><th>Spent</th><th>Rating</th><th></th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 }
 
+let pendingDeleteIdx = null;
+
 function deleteEntry(idx) {
-  history.splice(idx, 1);
+  const e = history[idx];
+  const perf = getPerformance(e.mileage);
+  pendingDeleteIdx = idx;
+  document.getElementById('deleteEntryInfo').innerHTML = `
+    <div><span style="color:var(--muted)">Date</span> &nbsp;·&nbsp; <strong style="color:var(--text)">${e.date}</strong></div>
+    <div><span style="color:var(--muted)">Odometer</span> &nbsp;·&nbsp; <strong style="color:var(--text)">${e.prevOdo.toLocaleString()} → ${e.currOdo.toLocaleString()} KM</strong></div>
+    <div><span style="color:var(--muted)">Distance</span> &nbsp;·&nbsp; <strong style="color:var(--text)">${e.distance.toFixed(0)} KM</strong></div>
+    <div><span style="color:var(--muted)">Fuel Added</span> &nbsp;·&nbsp; <strong style="color:var(--text)">${e.fuelAdded.toFixed(2)} L @ LKR ${e.fuelPrice}</strong></div>
+    <div><span style="color:var(--muted)">Mileage</span> &nbsp;·&nbsp; <strong style="color:var(--accent)">${e.mileage.toFixed(2)} KM/L</strong> &nbsp;<span class="badge-pill" style="background:${perf.bg};color:${perf.color}">${perf.label}</span></div>
+    <div><span style="color:var(--muted)">Total Spent</span> &nbsp;·&nbsp; <strong style="color:var(--red)">LKR ${e.amountPaid.toLocaleString()}</strong></div>
+    ${e.gasStation ? `<div><span style="color:var(--muted)">Station</span> &nbsp;·&nbsp; <strong style="color:var(--text)">${e.gasStation}</strong></div>` : ''}
+  `;
+  document.getElementById('confirmDeleteOverlay').classList.add('active');
+}
+
+function closeDeleteConfirm() {
+  document.getElementById('confirmDeleteOverlay').classList.remove('active');
+  pendingDeleteIdx = null;
+}
+
+function doDeleteEntry() {
+  if (pendingDeleteIdx === null) return;
+  history.splice(pendingDeleteIdx, 1);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  closeDeleteConfirm();
   renderHistory();
   document.getElementById('historyCount').textContent = history.length;
 }
@@ -891,6 +946,8 @@ function buildPrintReport(d) {
         <div style="margin-top:2px;">Owner: <strong style="color:#111">${owner}</strong></div>
         <div>${vehicleType} · ${vehicleModel}</div>
         <div>${fuelType}</div>
+        ${document.getElementById('gasStation').value ? `<div>Station: <strong style="color:#111">${document.getElementById('gasStation').value}</strong></div>` : ''}
+        ${document.getElementById('fillDate').value ? `<div>Fill Date: <strong style="color:#111">${new Date(document.getElementById('fillDate').value).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</strong></div>` : ''}
       </div>
     </div>
     <div class="pr-odo">
