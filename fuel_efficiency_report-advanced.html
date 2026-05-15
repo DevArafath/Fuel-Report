@@ -182,30 +182,32 @@
       .container > #report-section { display:block !important; }
       #report-section { display:block !important; }
       .print-report { width:100%; font-family:'DM Sans',sans-serif; }
-      .pr-head { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:10px; border-bottom:2px solid #f5a623; margin-bottom:14px; }
+      .pr-section-label { display:flex; align-items:center; gap:6px; font-family:'Syne',sans-serif; font-size:10px; font-weight:700; color:#333; margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid #e8e8e8; }
+      .pr-section-dot { width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; }
+      .pr-head { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:7px; border-bottom:2px solid #f5a623; margin-bottom:8px; }
       .pr-title { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#0d0f14; letter-spacing:-0.5px; }
       .pr-accent { color:#f5a623; }
       .pr-meta { font-family:'DM Mono',monospace; font-size:9px; color:#555; text-align:right; line-height:1.6; }
-      .pr-odo { display:flex; gap:8px; align-items:center; background:#fff7e6; border:1px solid #f5a623; border-radius:8px; padding:8px 14px; margin-bottom:14px; font-family:'DM Mono',monospace; font-size:9px; color:#333; flex-wrap:wrap; }
-      .pr-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
-      .pr-card { border:1px solid #e5e5e5; border-radius:8px; padding:10px 10px 8px; position:relative; overflow:hidden; }
+      .pr-odo { display:flex; gap:8px; align-items:center; background:#fff7e6; border:1px solid #f5a623; border-radius:6px; padding:5px 12px; margin-bottom:7px; font-family:'DM Mono',monospace; font-size:8.5px; color:#333; flex-wrap:wrap; }
+      .pr-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:7px; }
+      .pr-card { border:1px solid #e5e5e5; border-radius:6px; padding:7px 8px 6px; position:relative; overflow:hidden; }
       .pr-card::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; }
       .pr-card.ca::before{background:#f5a623} .pr-card.cg::before{background:#22d3a0} .pr-card.cb::before{background:#5a9ef0} .pr-card.cr::before{background:#f05a5a}
-      .pr-card-label { font-family:'DM Mono',monospace; font-size:7.5px; letter-spacing:0.8px; text-transform:uppercase; color:#888; margin-bottom:4px; }
-      .pr-card-value { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; line-height:1; }
+      .pr-card-label { font-family:'DM Mono',monospace; font-size:7px; letter-spacing:0.8px; text-transform:uppercase; color:#888; margin-bottom:3px; }
+      .pr-card-value { font-family:'Syne',sans-serif; font-size:16px; font-weight:800; line-height:1; }
       .pr-card.ca .pr-card-value{color:#d48c00} .pr-card.cg .pr-card-value{color:#0fa870} .pr-card.cb .pr-card-value{color:#2b6fb0} .pr-card.cr .pr-card-value{color:#c0392b}
-      .pr-card-unit { font-family:'DM Mono',monospace; font-size:8px; color:#aaa; margin-top:3px; }
-      .pr-analysis { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px; }
-      .pr-box { border:1px solid #e5e5e5; border-radius:8px; padding:12px 14px; }
-      .pr-box-title { font-family:'Syne',sans-serif; font-size:11px; font-weight:700; color:#222; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid #eee; }
-      .pr-row { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #f0f0f0; font-size:9px; }
+      .pr-card-unit { font-family:'DM Mono',monospace; font-size:7.5px; color:#aaa; margin-top:2px; }
+      .pr-analysis { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+      .pr-box { border:1px solid #e5e5e5; border-radius:6px; padding:8px 10px; }
+      .pr-box-title { font-family:'Syne',sans-serif; font-size:10px; font-weight:700; color:#222; margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid #eee; }
+      .pr-row { display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid #f0f0f0; font-size:8.5px; }
       .pr-row:last-child { border-bottom:none; }
       .pr-row span:first-child{color:#666;font-family:'DM Mono',monospace} .pr-row span:last-child{font-family:'DM Mono',monospace;font-weight:600;color:#111}
-      .pr-perf-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:8px; }
+      .pr-perf-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:6px; }
       .pr-perf-label { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1px; text-transform:uppercase; color:#888; }
-      .pr-perf-badge { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; padding:8px 24px; border-radius:50px; }
+      .pr-perf-badge { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; padding:6px 20px; border-radius:50px; }
       .pr-perf-sub { font-size:8px; color:#888; text-align:center; line-height:1.4; }
-      .pr-footer { border-top:1px solid #e5e5e5; padding-top:8px; display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:8px; color:#bbb; }
+      .pr-footer { border-top:1px solid #e5e5e5; padding-top:6px; margin-top:2px; display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:7.5px; color:#bbb; }
       * { page-break-inside:avoid; }
     }
   </style>
@@ -931,65 +933,185 @@ function drawChart(id, labels, data, yLabel, color) {
 
 // ── Print ─────────────────────────────────────────────────────
 function buildPrintReport(d) {
-  // Always read current vehicle details from form (in case they were updated after first report)
   const owner        = document.getElementById('ownerName').value    || d.owner        || 'N/A';
   const vehicleType  = document.getElementById('vehicleType').value  || d.vehicleType  || 'N/A';
   const vehicleModel = document.getElementById('vehicleModel').value || d.vehicleModel || 'N/A';
   const fuelType     = document.getElementById('fuelType').value     || d.fuelType     || 'N/A';
 
-  const date = new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'long',year:'numeric'});
-  const time = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+  const now  = new Date();
+  const date = now.toLocaleDateString('en-GB', {day:'2-digit',month:'long',year:'numeric'});
+  const time = now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+
+  // ── Overall stats from full history ──
+  const hasHistory  = history.length > 0;
+  const totalSpent  = hasHistory ? history.reduce((s,e) => s + e.amountPaid, 0) : 0;
+  const totalDist   = hasHistory ? history.reduce((s,e) => s + e.distance,   0) : 0;
+  const totalFuel   = hasHistory ? history.reduce((s,e) => s + e.fuelAdded,  0) : 0;
+  const avgMileage  = hasHistory ? history.reduce((s,e) => s + e.mileage,    0) / history.length : 0;
+  const avgCostKm   = hasHistory ? history.reduce((s,e) => s + e.costPerKm,  0) / history.length : 0;
+  const avgFuelPrice= hasHistory ? history.reduce((s,e) => s + e.fuelPrice,  0) / history.length : 0;
+  const bestMileage = hasHistory ? Math.max(...history.map(e => e.mileage)) : 0;
+  const worstMileage= hasHistory ? Math.min(...history.map(e => e.mileage)) : 0;
+  const overallPerf = getPerformance(avgMileage);
+
+  // Price trend vs previous fill
+  let priceTrendStr = '';
+  if (history.length >= 2) {
+    const prev = history[history.length - 2];
+    const diff = d.fuelPrice - prev.fuelPrice;
+    if (diff > 0)      priceTrendStr = `▲ +LKR ${diff.toFixed(2)}/L vs prev`;
+    else if (diff < 0) priceTrendStr = `▼ -LKR ${Math.abs(diff).toFixed(2)}/L vs prev`;
+    else               priceTrendStr = `Same price as prev fill`;
+  }
+
+  // Mileage delta vs previous
+  let mileageDeltaStr = '';
+  if (history.length >= 2) {
+    const prev = history[history.length - 2];
+    const md = d.mileage - prev.mileage;
+    mileageDeltaStr = md >= 0 ? `▲ +${md.toFixed(2)} vs prev` : `▼ ${md.toFixed(2)} vs prev`;
+  }
+
   document.getElementById('print-report').innerHTML = `
+    <!-- ── HEADER ── -->
     <div class="pr-head">
       <div>
         <div class="pr-title">⛽ Fuel Efficiency <span class="pr-accent">Report</span></div>
-        <div style="font-family:'DM Mono',monospace;font-size:9px;color:#888;margin-top:4px;">Professional Vehicle Mileage & Cost Analysis</div>
+        <div style="font-family:'DM Mono',monospace;font-size:8px;color:#888;margin-top:3px;">Professional Vehicle Mileage & Cost Analysis</div>
       </div>
       <div class="pr-meta">
         <div>${date} · ${time}</div>
-        <div style="margin-top:2px;">Owner: <strong style="color:#111">${owner}</strong></div>
-        <div>${vehicleType} · ${vehicleModel}</div>
-        <div>${fuelType}</div>
-        ${document.getElementById('gasStation').value ? `<div>Station: <strong style="color:#111">${document.getElementById('gasStation').value}</strong></div>` : ''}
-        ${document.getElementById('fillDate').value ? `<div>Fill Date: <strong style="color:#111">${new Date(document.getElementById('fillDate').value).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</strong></div>` : ''}
+        <div><strong style="color:#111">${owner}</strong> · ${vehicleType} · ${vehicleModel}</div>
+        <div>${fuelType}${d.gasStation ? ' · ' + d.gasStation : ''}${d.date ? ' · ' + d.date : ''}</div>
       </div>
     </div>
+
+    <!-- ── SECTION LABEL: LATEST FILL-UP ── -->
+    <div class="pr-section-label">
+      <span class="pr-section-dot" style="background:#f5a623"></span>
+      Latest Fill-up
+      <span style="margin-left:auto;font-size:8px;color:#888;">${d.date || date}${d.gasStation ? ' · ' + d.gasStation : ''}</span>
+    </div>
+
+    <!-- Odometer strip -->
     <div class="pr-odo">
-      <span><strong>Previous ODO:</strong> ${d.prevOdo.toLocaleString()} KM</span>
+      <span><strong>Prev ODO:</strong> ${d.prevOdo.toLocaleString()} KM</span>
       <span style="color:#f5a623">→</span>
-      <span><strong>Current ODO:</strong> ${d.currOdo.toLocaleString()} KM</span>
+      <span><strong>Curr ODO:</strong> ${d.currOdo.toLocaleString()} KM</span>
       <span style="color:#f5a623">=</span>
       <span><strong style="color:#d48c00">Distance: ${d.distance.toFixed(0)} KM</strong></span>
+      ${priceTrendStr ? `<span style="margin-left:auto;font-size:8px;color:${d.fuelPrice > (history.length>=2?history[history.length-2].fuelPrice:d.fuelPrice) ? '#c0392b':'#0fa870'}">${priceTrendStr}</span>` : ''}
     </div>
-    <div class="pr-metrics">
-      <div class="pr-card ca"><div class="pr-card-label">Mileage</div><div class="pr-card-value">${d.mileage.toFixed(2)}</div><div class="pr-card-unit">KM / LITRE</div></div>
-      <div class="pr-card cg"><div class="pr-card-label">Cost per KM</div><div class="pr-card-value">${d.costPerKm.toFixed(2)}</div><div class="pr-card-unit">LKR / KM</div></div>
-      <div class="pr-card cb"><div class="pr-card-label">Fuel Used</div><div class="pr-card-value">${d.fuelAdded.toFixed(2)}</div><div class="pr-card-unit">LITRES</div></div>
-      <div class="pr-card cr"><div class="pr-card-label">Total Spent</div><div class="pr-card-value">${d.amountPaid.toLocaleString()}</div><div class="pr-card-unit">LKR</div></div>
-    </div>
-    <div class="pr-analysis">
-      <div class="pr-box">
-        <div class="pr-box-title">Detailed Analysis</div>
-        <div class="pr-row"><span>Consumption per 100 KM</span><span>${d.fuelPer100.toFixed(2)} L</span></div>
-        <div class="pr-row"><span>Range on 10 Litres</span><span>${d.range10L.toFixed(1)} KM</span></div>
-        <div class="pr-row"><span>Distance for LKR 1,000</span><span>${d.dist1000.toFixed(1)} KM</span></div>
-        <div class="pr-row"><span>Fuel Price Used</span><span>LKR ${d.fuelPrice.toFixed(2)} / L</span></div>
-        <div class="pr-row"><span>Total Fuel Cost</span><span>LKR ${d.amountPaid.toLocaleString()}</span></div>
-        <div class="pr-row"><span>Total Fill-ups Recorded</span><span>${history.length}</span></div>
+
+    <!-- Latest metrics: 5 cards -->
+    <div class="pr-metrics" style="grid-template-columns:repeat(5,1fr);">
+      <div class="pr-card ca">
+        <div class="pr-card-label">Mileage</div>
+        <div class="pr-card-value">${d.mileage.toFixed(2)}</div>
+        <div class="pr-card-unit">KM / L${mileageDeltaStr ? '<br><span style="font-size:7px;color:'+( d.mileage>=(history.length>=2?history[history.length-2].mileage:d.mileage)?'#0fa870':'#c0392b')+'">'+mileageDeltaStr+'</span>' : ''}</div>
       </div>
-      <div class="pr-box">
-        <div class="pr-box-title">Performance Rating</div>
-        <div class="pr-perf-wrap">
-          <div class="pr-perf-label">Overall Efficiency</div>
-          <div class="pr-perf-badge" style="background:${d.perf.printBg};color:${d.perf.printColor}">${d.perf.label}</div>
-          <div class="pr-perf-sub">${d.perf.sub}</div>
-        </div>
+      <div class="pr-card cg">
+        <div class="pr-card-label">Cost / KM</div>
+        <div class="pr-card-value">${d.costPerKm.toFixed(2)}</div>
+        <div class="pr-card-unit">LKR / KM</div>
+      </div>
+      <div class="pr-card cb">
+        <div class="pr-card-label">Fuel Used</div>
+        <div class="pr-card-value">${d.fuelAdded.toFixed(2)}</div>
+        <div class="pr-card-unit">LITRES</div>
+      </div>
+      <div class="pr-card cr">
+        <div class="pr-card-label">Amount Paid</div>
+        <div class="pr-card-value">${d.amountPaid.toLocaleString()}</div>
+        <div class="pr-card-unit">LKR</div>
+      </div>
+      <div class="pr-card" style="border-top:2px solid ${d.perf.printColor};">
+        <div class="pr-card-label">Rating</div>
+        <div class="pr-card-value" style="font-size:14px;color:${d.perf.printColor}">${d.perf.label}</div>
+        <div class="pr-card-unit">${d.fuelPer100.toFixed(2)} L/100KM</div>
       </div>
     </div>
+
+    <!-- Latest analysis row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px;">
+      <div class="pr-box" style="padding:8px 12px;">
+        <div class="pr-box-title" style="margin-bottom:6px;">Fuel Details</div>
+        <div class="pr-row"><span>Fuel Price</span><span>LKR ${d.fuelPrice.toFixed(2)}/L</span></div>
+        <div class="pr-row"><span>Consumption</span><span>${d.fuelPer100.toFixed(2)} L/100KM</span></div>
+        <div class="pr-row" style="border:none"><span>Total Cost</span><span>LKR ${d.amountPaid.toLocaleString()}</span></div>
+      </div>
+      <div class="pr-box" style="padding:8px 12px;">
+        <div class="pr-box-title" style="margin-bottom:6px;">Range Estimates</div>
+        <div class="pr-row"><span>Range on 10L</span><span>${d.range10L.toFixed(1)} KM</span></div>
+        <div class="pr-row"><span>Dist for LKR 1K</span><span>${d.dist1000.toFixed(1)} KM</span></div>
+        <div class="pr-row" style="border:none"><span>Distance Covered</span><span>${d.distance.toFixed(0)} KM</span></div>
+      </div>
+      <div class="pr-box" style="padding:8px 12px;">
+        <div class="pr-box-title" style="margin-bottom:6px;">Fill-up Info</div>
+        <div class="pr-row"><span>Date</span><span>${d.date || date}</span></div>
+        <div class="pr-row"><span>Station</span><span>${d.gasStation || '—'}</span></div>
+        <div class="pr-row" style="border:none"><span>Fill #</span><span>${history.length}</span></div>
+      </div>
+    </div>
+
+    <!-- ── SECTION LABEL: OVERALL SUMMARY ── -->
+    <div class="pr-section-label">
+      <span class="pr-section-dot" style="background:#5a9ef0"></span>
+      Overall Summary
+      <span style="margin-left:auto;font-size:8px;color:#888;">${history.length} fill-up${history.length!==1?'s':''} recorded</span>
+    </div>
+
+    <!-- Overall metrics: 4 cards -->
+    <div class="pr-metrics" style="grid-template-columns:repeat(4,1fr);margin-bottom:7px;">
+      <div class="pr-card" style="border-top:2px solid #5a9ef0;">
+        <div class="pr-card-label">Total Distance</div>
+        <div class="pr-card-value" style="color:#2b6fb0">${totalDist.toFixed(0)}</div>
+        <div class="pr-card-unit">KM</div>
+      </div>
+      <div class="pr-card" style="border-top:2px solid #22d3a0;">
+        <div class="pr-card-label">Total Fuel</div>
+        <div class="pr-card-value" style="color:#0fa870">${totalFuel.toFixed(2)}</div>
+        <div class="pr-card-unit">LITRES</div>
+      </div>
+      <div class="pr-card" style="border-top:2px solid #f05a5a;">
+        <div class="pr-card-label">Total Spent</div>
+        <div class="pr-card-value" style="color:#c0392b">${(totalSpent/1000).toFixed(1)}K</div>
+        <div class="pr-card-unit">LKR</div>
+      </div>
+      <div class="pr-card" style="border-top:2px solid ${overallPerf.printColor};">
+        <div class="pr-card-label">Avg Rating</div>
+        <div class="pr-card-value" style="font-size:14px;color:${overallPerf.printColor}">${overallPerf.label}</div>
+        <div class="pr-card-unit">${avgMileage.toFixed(2)} KM/L avg</div>
+      </div>
+    </div>
+
+    <!-- Overall analysis row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px;">
+      <div class="pr-box" style="padding:8px 12px;">
+        <div class="pr-box-title" style="margin-bottom:6px;">Averages</div>
+        <div class="pr-row"><span>Avg Mileage</span><span>${avgMileage.toFixed(2)} KM/L</span></div>
+        <div class="pr-row"><span>Avg Cost/KM</span><span>LKR ${avgCostKm.toFixed(2)}</span></div>
+        <div class="pr-row" style="border:none"><span>Avg Fuel Price</span><span>LKR ${avgFuelPrice.toFixed(2)}/L</span></div>
+      </div>
+      <div class="pr-box" style="padding:8px 12px;">
+        <div class="pr-box-title" style="margin-bottom:6px;">Best vs Worst</div>
+        <div class="pr-row"><span>Best Mileage</span><span style="color:#0fa870">${bestMileage.toFixed(2)} KM/L</span></div>
+        <div class="pr-row"><span>Worst Mileage</span><span style="color:#c0392b">${worstMileage.toFixed(2)} KM/L</span></div>
+        <div class="pr-row" style="border:none"><span>Variance</span><span>${(bestMileage-worstMileage).toFixed(2)} KM/L</span></div>
+      </div>
+      <div class="pr-box" style="padding:8px 12px;">
+        <div class="pr-box-title" style="margin-bottom:6px;">Totals</div>
+        <div class="pr-row"><span>Fill-ups</span><span>${history.length}</span></div>
+        <div class="pr-row"><span>Total Spent</span><span>LKR ${totalSpent.toLocaleString()}</span></div>
+        <div class="pr-row" style="border:none"><span>Total Distance</span><span>${totalDist.toFixed(0)} KM</span></div>
+      </div>
+    </div>
+
+    <!-- ── FOOTER ── -->
     <div class="pr-footer">
       <span>Generated by Fuel Efficiency Calculator</span>
       <span>${vehicleModel} · ${fuelType}</span>
-      <span>${date}</span>
+      <span>${date} · ${time}</span>
     </div>`;
 }
 
